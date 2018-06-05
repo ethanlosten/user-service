@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script th:inline="javascript">
+        function fixCall() {
+            var select = document.getElementById("filterType");
+            var action = select.options[select.selectedIndex].getAttribute("path");
+            document.getElementById("findForm").setAttribute("action", action);
+            if (select.options[select.selectedIndex].value == "ID") {
+                document.getElementById("findFormId").setAttribute("name", "id");
+            } else {
+                document.getElementById("findFormId").setAttribute("name", "name");
+            }
+        }
+    </script>
+    <style>
+        .role {
+            border-radius: 5px;
+            background-color: #e8eef7;
+            color: #327aba;
+            margin-left: 2px;
+            margin-right: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <span>Add new role: </span>
+    <form action="#" th:action="@{/addRole}" method="post">
+        <input name="name"/>
+        <input type="submit" value="Add role">
+    </form>
+
+    <hr/>
+
+    <span>Add new user: </span>
+    <form action="#" th:action="@{/addUser}" method="post">
+        <input name="name"/>
+        <input type="submit" value="Add user">
+    </form>
+
+    <hr/>
+
+    <span>Search: </span>
+    <form id="findForm" action="#" th:action="@{/getUserById}" method="post">
+        <input id="findFormId" type="text" name="id"/>
+        <select onchange="fixCall();" id="filterType">
+            <option path="/getUserById">ID</option>
+            <option path="/getUsersByName">name</option>
+            <option path="/getUsersByRole">role</option>
+        </select>
+        <input type="submit" value="Search"/>
+        <a th:href="@{/users/}">Show all users</a>
+    </form>
+
+    <hr/>
+
+    <table border="1px">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>NAME</th>
+                <th>ROLES</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.name}"></td>
+                <td>
+                    <span class="role" th:each="role : ${user.roles}">
+                        <span class="role" th:text="${role.name}"></span>
+                    </span>
+                    <br/>
+                    <br/>
+                    <span><b>Assign a role to the user:</b></span>
+                    <form action="#" th:action="@{/addRoleToUser}" method="post">
+                        <input type="hidden" name="userId" th:value="${user.id}"/>
+                        <select name="roleName">
+                            <option th:each="roleName : ${roles}">
+                                <title th:text="${roleName.name}"></title>
+                            </option>
+                        </select>
+                        <input type="submit" value="Add"/>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>
