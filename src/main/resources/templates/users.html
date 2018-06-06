@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>User service</title>
     <script th:inline="javascript">
         function fixCall() {
             var select = document.getElementById("filterType");
@@ -28,7 +28,7 @@
 <body>
 
     <span>Add new role: </span>
-    <form action="#" th:action="@{/addRole}" method="post">
+    <form action="#" th:action="@{/user-service/addRole}" method="post">
         <input name="name"/>
         <input type="submit" value="Add role">
     </form>
@@ -36,7 +36,7 @@
     <hr/>
 
     <span>Add new user: </span>
-    <form action="#" th:action="@{/addUser}" method="post">
+    <form action="#" th:action="@{/user-service/addUser}" method="post">
         <input name="name"/>
         <input type="submit" value="Add user">
     </form>
@@ -44,15 +44,15 @@
     <hr/>
 
     <span>Search: </span>
-    <form id="findForm" action="#" th:action="@{/getUserById}" method="post">
+    <form id="findForm" action="#" th:action="@{/user-service/getUserById}" method="post">
         <input id="findFormId" type="text" name="id"/>
         <select onchange="fixCall();" id="filterType">
-            <option path="/getUserById">ID</option>
-            <option path="/getUsersByName">name</option>
-            <option path="/getUsersByRole">role</option>
+            <option path="/user-service/getUserById">ID</option>
+            <option path="/user-service/getUsersByName">name</option>
+            <option path="/user-service/getUsersByRole">role</option>
         </select>
         <input type="submit" value="Search"/>
-        <a th:href="@{/users/}">Show all users</a>
+        <a th:href="@{/user-service/users/}">Show all users</a>
     </form>
 
     <hr/>
@@ -76,7 +76,7 @@
                     <br/>
                     <br/>
                     <span><b>Assign a role to the user:</b></span>
-                    <form action="#" th:action="@{/addRoleToUser}" method="post">
+                    <form action="#" th:action="@{/user-service/addRoleToUser}" method="post">
                         <input type="hidden" name="userId" th:value="${user.id}"/>
                         <select name="roleName">
                             <option th:each="roleName : ${roles}">

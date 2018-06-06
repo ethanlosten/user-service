@@ -1,6 +1,7 @@
 package eth.tr.test.controllers;
 
 import eth.tr.test.exceptions.EmptyNameException;
+import eth.tr.test.messages.Message;
 import eth.tr.test.model.Role;
 import eth.tr.test.model.User;
 import eth.tr.test.repository.RoleRepository;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 @EnableWebMvc
@@ -36,19 +36,24 @@ public class FrontendController {
     public String addRoleToUser(@RequestParam String roleName,
                                 @RequestParam Long userId,
                                 Model model) {
-        User user = userRepository.findById(userId).get();
-        user.addRole(roleRepository.findByName(roleName));
-        userRepository.save(user);
+        try {
+            User user = userRepository.findById(userId).get();
+            user.addRole(roleRepository.findByName(roleName));
+            userRepository.save(user);
+        } catch (Exception ex) {
+            model.addAttribute("errorMessage", new Message("400", "such role is already assigned to the user"));
+            return "error";
+        }
 
         model.addAttribute("roles", roleRepository.findAll());
         model.addAttribute("users", userRepository.findAll());
-        return "redirect:/users";
+        return "users";
     }
 
     @PostMapping("/getUsersByName")
     public String getUsersByName(@RequestParam(required = false) String name,
                                  Model model) {
-        if (name == null) {
+        if (name == null || name.isEmpty()) {
             model.addAttribute("users", userRepository.findAll());
         } else {
             model.addAttribute("users", userRepository.findByName(name));
@@ -60,13 +65,13 @@ public class FrontendController {
     @PostMapping("/getUsersByRole")
     public String getUsersByRole(@RequestParam(required = false) String name,
                                  Model model) {
-        if (name == null) {
+        if (name == null || name.isEmpty()) {
             model.addAttribute("users", userRepository.findAll());
         } else {
             model.addAttribute("users", userRepository.findByRole(
                     roleRepository.findByName(name).getId()));
         }
-        model.addAttribute(roleRepository.findAll());
+        model.addAttribute("roles", roleRepository.findAll());
         return "users";
     }
 
@@ -88,23 +93,31 @@ public class FrontendController {
     @PostMapping("/addUser")
     public String addUser(@RequestParam String name,
                           Model model) throws EmptyNameException {
+        if (name == null || name.isEmpty()) {
+            model.addAttribute("errorMessage", new Message("400", "Name should be filled"));
+            return "error";
+        }
         User newUser = new User();
         newUser.setName(name);
         userRepository.save(newUser);
         model.addAttribute("roles", roleRepository.findAll());
         model.addAttribute("users", userRepository.findAll());
-        return "redirect:/users";
+        return "users";
     }
 
     @PostMapping("/addRole")
     public String addRole(@RequestParam String name,
                           Model model) throws EmptyNameException {
+        if (roleRepository.countByName(name) != 0) {
+            model.addAttribute("errorMessage", new Message("400", "Such role already exists"));
+            return "error";
+        }
         Role newRole = new Role();
         newRole.setName(name);
         roleRepository.save(newRole);
         model.addAttribute("roles", roleRepository.findAll());
         model.addAttribute("users", userRepository.findAll());
-        return "redirect:/users";
+        return "users";
     }
 
 }
